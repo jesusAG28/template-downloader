@@ -12,12 +12,13 @@ if (!is_dir('./templates'))
 
 
 $ok         = 0;
+$exist      = 0;
 $errorCount = 0;
 $errors     = [];
-$time       = microtime(true);
+$start       = microtime(true);
 $latestPage = 294;
 
-for ($i = $latestPage; $i <= $latestPage; $i--) {
+for ($i = $latestPage; $i > 0; $i--) {
     $page = BASE_URL . 'free-css-templates/page' . $i . '/';
 
     try {
@@ -50,41 +51,53 @@ for ($i = $latestPage; $i <= $latestPage; $i--) {
 
         echo $template_url;
 
-        if (!is_dir('./templates/' . $title))
+        if (!is_dir('./templates/' . $title)) {
             mkdir('./templates/' . $title, 0775, true);
+        }
 
-        // $res = file_put_contents('./templates/' . $title . '/' . $title . '.zip', fopen($template_url . '.zip', 'r'));
+        if (!file_exists('./templates/' . $title . '/' . $title . '.zip')) {
 
-        $ch     = curl_init();
-        $source = $template_url;
-        curl_setopt($ch, CURLOPT_URL, $source);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $data = curl_exec($ch);
-        curl_close($ch);
+            // $res = file_put_contents('./templates/' . $title . '/' . $title . '.zip', fopen($template_url . '.zip', 'r'));
 
-        try {
-            $destination = './templates/' . $title . '/' . $title . '.zip';
-            $file        = fopen($destination, "w+");
+            $ch     = curl_init();
+            $source = $template_url;
+            curl_setopt($ch, CURLOPT_URL, $source);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $data = curl_exec($ch);
+            curl_close($ch);
 
-            fputs($file, $data);
-            fclose($file);
-            $ok++;
+            try {
+                $destination = './templates/' . $title . '/' . $title . '.zip';
+                $file        = fopen($destination, "w+");
 
+                fputs($file, $data);
+                fclose($file);
+                $ok++;
+
+                echo PHP_EOL;
+                echo 'OK';
+                echo PHP_EOL;
+                echo PHP_EOL;
+            } catch (Exception $e) {
+                $errors[] = $source;
+                echo PHP_EOL;
+                echo 'ERROR';
+                echo PHP_EOL;
+                echo PHP_EOL;
+            }
+
+            echo 'EXIST -> ' . $exist . ' :: OK -> ' . $ok . ' :: ERR -> ' . count($errors);
             echo PHP_EOL;
-            echo 'OK';
             echo PHP_EOL;
+
+        } else {
+            $exist++;
             echo PHP_EOL;
-        } catch (Exception $e) {
-            $errors[] = $source;
-            echo PHP_EOL;
-            echo 'ERROR';
+            echo 'EXIST -> ' . $exist . ' :: OK -> ' . $ok . ' :: ERR -> ' . count($errors);
             echo PHP_EOL;
             echo PHP_EOL;
         }
 
-        echo 'OK -> ' . $ok . ' ERR -> ' . count($errors);
-        echo PHP_EOL;
-        echo PHP_EOL;
 
     }
 
@@ -96,3 +109,5 @@ echo PHP_EOL;
 echo PHP_EOL;
 echo "Tiempo de ejecución: (<i>$time</i>) segundos";
 echo PHP_EOL;
+
+exit;
