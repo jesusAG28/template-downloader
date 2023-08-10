@@ -1,8 +1,9 @@
-required comand composer install
+# required comand
 
+-   composer install
 
-usage
+# Usage
 
-php ./downloader.php
+-   run php './downloader.php'
 
-php ./unzipper.php
+-   when finnish, run 'php ./unzipper.php'
