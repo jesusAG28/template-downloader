@@ -1,22 +1,24 @@
 <?php
 set_time_limit(0);
 date_default_timezone_set('Europe/Madrid');
+
 define('BASE_URL', 'https://www.free-css.com/');
+define('TEMPLATES_DIR', './templates');
 
 require './vendor/autoload.php';
 
+if (!is_dir(TEMPLATES_DIR)) {
+    mkdir(TEMPLATES_DIR, 0775, true);
+}
+
 $dom = new PHPHtmlParser\Dom;
 
-if (!is_dir('./templates'))
-    mkdir('./templates', 0775, true);
-
-
-$ok         = 0;
-$exist      = 0;
-$errorCount = 0;
-$errors     = [];
-$start       = microtime(true);
-$latestPage = 294;
+$ok             = 0;
+$exist          = 0;
+$exceptionCount = 0;
+$errors         = [];
+$start          = microtime(true);
+$latestPage     = 294;
 
 for ($i = $latestPage; $i > 0; $i--) {
     $page = BASE_URL . 'free-css-templates/page' . $i . '/';
@@ -24,8 +26,7 @@ for ($i = $latestPage; $i > 0; $i--) {
     try {
         $dom->loadFromFile($page);
     } catch (Exception $e) {
-        $errorCount++;
-        continue;
+        $exceptionCount++;
     }
 
     $showcase = $dom->find('#showcase');
@@ -51,11 +52,11 @@ for ($i = $latestPage; $i > 0; $i--) {
 
         echo $template_url;
 
-        if (!is_dir('./templates/' . $title)) {
-            mkdir('./templates/' . $title, 0775, true);
+        if (!is_dir(TEMPLATES_DIR . '/' . $title)) {
+            mkdir(TEMPLATES_DIR . '/' . $title, 0775, true);
         }
 
-        if (!file_exists('./templates/' . $title . '/' . $title . '.zip')) {
+        if (!file_exists(TEMPLATES_DIR . '/' . $title . '/' . $title . '.zip')) {
 
             // $res = file_put_contents('./templates/' . $title . '/' . $title . '.zip', fopen($template_url . '.zip', 'r'));
 
@@ -67,7 +68,7 @@ for ($i = $latestPage; $i > 0; $i--) {
             curl_close($ch);
 
             try {
-                $destination = './templates/' . $title . '/' . $title . '.zip';
+                $destination = TEMPLATES_DIR . '/' . $title . '/' . $title . '.zip';
                 $file        = fopen($destination, "w+");
 
                 fputs($file, $data);
@@ -107,7 +108,7 @@ $end  = microtime(true);
 $time = $end - $start;
 echo PHP_EOL;
 echo PHP_EOL;
-echo "Tiempo de ejecución: (<i>$time</i>) segundos";
+echo "Tiempo de ejecución: ($time) segundos";
 echo PHP_EOL;
 
 exit;
